@@ -133,7 +133,7 @@ matches:
     replace: "ffuf -w /usr/share/seclists/Discovery/Web-Content/web-extensions.txt:FUZZ -u http://{{clipboard}}/blog/indexFUZZ"
 
   - trigger: ":xfreerdp"
-    replace: "xfreerdp /dynamic-resolution /cert-ignore /compression /auto-reconnect /v:{{clipboard}} /u:user /p:pass "
+    replace: "xfreerdp /drive:/tmp,tmp /dynamic-resolution /cert-ignore /compression /auto-reconnect /v:{{clipboard}} /u:user /p:pass "
 
   - trigger: ":nuclei"
     replace: "nuclei -c 50 -retries 3 -u {{clipboard}}"
