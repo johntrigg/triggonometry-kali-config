@@ -110,6 +110,10 @@ matches:
   - trigger: ":nmap"
     replace: sudo nmap -sC -sV -v -p- -o nmap {{clipboard}} --min-rate 
 
+  - trigger: ":udpnmap"
+    replace: sudo nmap -sU -v --top-ports 1000 -o nmapUDP {{clipboard}} --min-rate
+
+
   - trigger: ":lping"
     replace: for i in {1..254} ;do (ping -c 1 {{clipboard}}.$i | grep "bytes from" &) ;done
 
@@ -188,7 +192,7 @@ matches:
     replace: sudo ip tuntap add user kali mode tun ligolo ; sudo ip link set ligolo up && sudo ./proxy -selfcert -laddr 0.0.0.0:443
 
   - trigger: ":awinligolo"
-    replace: .\agent.exe -connect {{IP}}:443 -ignore-cert & 
+    replace: .\agent.exe -connect {{IP}}:443 -ignore-cert 
 
   - trigger: ":aligolo"
     replace: ./agent -connect {{IP}}:443 -ignore-cert & 
