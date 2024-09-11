@@ -8,7 +8,8 @@ sudo apt update && sudo apt dist-upgrade -y
 sudo apt install terminator -y
 sudo apt install tmux -y
 sudo apt install xclip -y
-sudo gem install evil-winrm
+sudo apt install neotfetch -y
+sudo gem install evil-winrm -y
 
 # Espanso
 echo "Installing Espanso"
@@ -35,20 +36,21 @@ sudo apt update && sudo apt install codium
 # Visual Touches
 
 # Make themes directory
-mkdir ~/.themes
+mkdir /home/kali/themes
 
 
 # Extract the theme (assuming it's a compressed archive)
 tar -xvf rice/Sweet-Dark-v40.tar.xz
 
 # Move the theme to the appropriate directory
-sudo mv Sweet-Dark-v40 /usr/share/themes
+sudo cp -r Sweet-Dark-v40 /usr/share/themes
+sudo cp -r Sweet-Dark-v40 /home/kali/themes
 
 # Set the system theme
 xfconf-query -c xsettings -p /Net/ThemeName -s "Sweet-Dark-v40"
 
 # Make icons directory
-mkdir ~/.icons
+mkdir /home/kali/icons
 
 # Download the icon theme
 
@@ -57,6 +59,7 @@ tar -xvf rice/candy-icons.tar.xz
 
 # Move the icon theme to the appropriate directory
 cp -r candy-icons/ /usr/share/icons
+cp -r candy-icons/ /home/kali/icons
 
 # Set the system icon theme
 xfconf-query -c xsettings -p /Net/IconThemeName -s "candy-icons"
