@@ -8,7 +8,7 @@ sudo apt update && sudo apt dist-upgrade -y
 sudo apt install terminator -y
 sudo apt install tmux -y
 sudo apt install xclip -y
-sudo apt install neotfetch -y
+sudo apt install neofetch -y
 sudo gem install evil-winrm -y
 
 # Espanso

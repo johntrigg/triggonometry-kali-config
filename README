@@ -2,4 +2,6 @@
 
 You might need to run some things manually.
 
+sudo bash setup.sh
+
 curl -O https://raw.githubusercontent.com/KorvinSilver/blokkzh/master/blokkzh-downloader.zsh && zsh blokkzh-downloader.zsh $ZSH_CUSTOM && rm blokkzh-downloader.zsh
