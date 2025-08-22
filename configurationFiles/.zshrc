@@ -4,8 +4,8 @@ fi
 
 # History configuration
 export HISTFILE=~/.zsh_history
-export HISTSIZE=100000
-export SAVEHIST=100000
+export HISTSIZE=100000000
+export SAVEHIST=100000000
 
 # Share history across multiple windows
 setopt HIST_IGNORE_DUPS  # Ignore duplicate entries
